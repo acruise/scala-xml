@@ -29,4 +29,5 @@ abstract class ConstructingHandler extends MarkupHandler {
   def comment(pos: Int, txt: String) = Comment(txt)
   def entityRef(pos: Int, n: String) = EntityRef(n)
   def text(pos: Int, txt: String) = Text(txt)
+  def cdata(pos: Int, txt: String) = PCData(txt)
 }

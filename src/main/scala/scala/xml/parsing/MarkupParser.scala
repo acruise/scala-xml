@@ -373,7 +373,7 @@ trait MarkupParser extends MarkupParserCommon with TokenTests {
   def xCharData: NodeSeq = {
     xToken("[CDATA[")
     def mkResult(pos: Int, s: String): NodeSeq = {
-      handle.text(pos, s)
+      handle.cdata(pos, s)
       PCData(s)
     }
     xTakeUntil(mkResult, () => pos, "]]>")

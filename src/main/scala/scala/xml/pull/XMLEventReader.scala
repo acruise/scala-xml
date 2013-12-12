@@ -88,7 +88,8 @@ class XMLEventReader(src: Source)
     def procInstr(pos: Int, target: String, txt: String) = setEvent(EvProcInstr(target, txt))
     def comment(pos: Int, txt: String) = setEvent(EvComment(txt))
     def entityRef(pos: Int, n: String) = setEvent(EvEntityRef(n))
-    def text(pos: Int, txt: String) = setEvent(EvText(txt))
+    def text(pos: Int, txt: String) = setEvent(EvText(txt, false))
+    def cdata(pos: Int, txt: String) = setEvent(EvText(txt, true))
 
     override def run() {
       curInput = input

@@ -33,6 +33,9 @@ abstract class Binder(val preserveWS: Boolean) extends ValidatingMarkupHandler {
   final def text(pos: Int, txt: String) =
     Text(txt)
 
+  final def cdata(pos: Int, txt: String) =
+    PCData(txt)
+
   final def traverse(n: Node): Unit = n match {
     case x: ProcInstr =>
       result &+ procInstr(0, x.target, x.text)
@@ -40,6 +43,8 @@ abstract class Binder(val preserveWS: Boolean) extends ValidatingMarkupHandler {
       result &+ comment(0, x.text)
     case x: Text =>
       result &+ text(0, x.data)
+    case x: PCData =>
+      result &+ cdata(0, x.data)
     case x: EntityRef =>
       result &+ entityRef(0, x.entityName)
     case x: Elem =>

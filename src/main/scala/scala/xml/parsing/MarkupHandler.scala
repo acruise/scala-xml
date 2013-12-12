@@ -102,6 +102,8 @@ abstract class MarkupHandler {
    */
   def text(pos: Int, txt: String): NodeSeq
 
+  def cdata(pos: Int, txt: String): NodeSeq
+
   // DTD handler methods
 
   def elemDecl(n: String, cmstr: String): Unit = ()

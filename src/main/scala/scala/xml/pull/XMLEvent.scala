@@ -33,9 +33,15 @@ case class EvElemEnd(pre: String, label: String) extends XMLEvent
 
 /**
  * A text node was encountered.
- * @param text the text that was found
+ * @param text     the text that was found
+ * @param wasCdata `true` if the text was from a CDATA
  */
-case class EvText(text: String) extends XMLEvent
+case class EvText(text: String, wasCdata: Boolean = false) extends XMLEvent
+object EvText {
+  // TODO it would be nice if we could do this to enable backward source compatibility...
+  // TODO ...but we can't because "method unapply is defined twice". ಠ_ಠ
+  // def unapply(txt: EvText): Option[String] = Some(txt.text)
+}
 
 /**
  * An entity reference was encountered.

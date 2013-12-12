@@ -15,29 +15,29 @@ class XMLEventReaderTest {
   val src = Source.fromString("<hello><world/>!</hello>")
 
   @Test
-  def pull: Unit = {
+  def pull(): Unit = {
     val er = new XMLEventReader(src)
-    assertTrue(er.next match {
+    assertTrue(er.next() match {
       case EvElemStart(_, "hello", _, _) => true
       case _ => false
     })
-    assertTrue(er.next match {
+    assertTrue(er.next() match {
       case EvElemStart(_, "world", _, _) => true
       case _ => false
     })
-    assertTrue(er.next match {
+    assertTrue(er.next() match {
       case EvElemEnd(_, "world") => true
       case _ => false
     })
-    assertTrue(er.next match {
-      case EvText("!") => true
+    assertTrue(er.next() match {
+      case EvText("!", _) => true
       case _ => false
     })
-    assertTrue(er.next match {
+    assertTrue(er.next() match {
       case EvElemEnd(_, "hello") => true
       case _ => false
     })
-    er.stop  // allow thread to be garbage-collected
+    er.stop()  // allow thread to be garbage-collected
   }
 
 }

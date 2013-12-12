@@ -24,4 +24,5 @@ abstract class DefaultMarkupHandler extends MarkupHandler {
 
   def text(pos: Int, txt: String) = NodeSeq.Empty
 
+  def cdata(pos: Int, txt: String) = NodeSeq.Empty
 }
