@@ -108,7 +108,7 @@ object Utility extends AnyRef with parsing.TokenTests {
   import Escapes.{ escMap, unescMap }
 
   /**
-   * Appends escaped string to `s`.
+   * Appends fully escaped string to `s`.
    */
   final def escape(text: String, s: StringBuilder): StringBuilder = {
     // Implemented per XML spec:
@@ -123,6 +123,31 @@ object Utility extends AnyRef with parsing.TokenTests {
         case '>'  => s.append("&gt;")
         case '&'  => s.append("&amp;")
         case '"'  => s.append("&quot;")
+        case '\n' => s.append('\n')
+        case '\r' => s.append('\r')
+        case '\t' => s.append('\t')
+        case c    => if (c >= ' ') s.append(c)
+      }
+
+      pos += 1
+    }
+    s
+  }
+
+  /**
+   * Appends a string to `s`, minimally escaped so as to be a valid Text node.
+   */
+  final def escapeMinimally(text: String, s: StringBuilder): StringBuilder = {
+    // Implemented per XML spec:
+    // http://www.w3.org/International/questions/qa-controls
+    // imperative code 3x-4x faster than current implementation
+    // dpp (David Pollak) 2010/02/03
+    val len = text.length
+    var pos = 0
+    while (pos < len) {
+      text.charAt(pos) match {
+        case '<'  => s.append("&lt;")
+        case '&'  => s.append("&amp;")
         case '\n' => s.append('\n')
         case '\r' => s.append('\r')
         case '\t' => s.append('\t')
