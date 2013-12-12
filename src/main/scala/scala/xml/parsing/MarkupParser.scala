@@ -223,54 +223,59 @@ trait MarkupParser extends MarkupParserCommon with TokenTests {
    * }}}
    */
   def document(): Document = {
-    doc = new Document()
+    try {
+      doc = new Document()
 
-    this.dtd = null
-    var info_prolog: (Option[String], Option[String], Option[Boolean]) = (None, None, None)
-    if ('<' != ch) {
-      reportSyntaxError("< expected")
-      return null
-    }
+      this.dtd = null
+      var info_prolog: (Option[String], Option[String], Option[Boolean]) = (None, None, None)
+      if ('<' != ch) {
+        reportSyntaxError("< expected")
+        return null
+      }
 
-    nextch() // is prolog ?
-    var children: NodeSeq = null
-    if ('?' == ch) {
-      nextch()
-      info_prolog = prolog()
-      doc.version = info_prolog._1
-      doc.encoding = info_prolog._2
-      doc.standAlone = info_prolog._3
+      nextch() // is prolog ?
+      var children: NodeSeq = null
+      if ('?' == ch) {
+        nextch()
+        info_prolog = prolog()
+        doc.version = info_prolog._1
+        doc.encoding = info_prolog._2
+        doc.standAlone = info_prolog._3
 
-      children = content(TopScope) // DTD handled as side effect
-    } else {
-      val ts = new NodeBuffer()
-      content1(TopScope, ts) // DTD handled as side effect
-      ts &+ content(TopScope)
-      children = NodeSeq.fromSeq(ts)
-    }
-    //println("[MarkupParser::document] children now: "+children.toList)
-    var elemCount = 0
-    var theNode: Node = null
-    for (c <- children) c match {
-      case _: ProcInstr =>
-      case _: Comment   =>
-      case _: EntityRef => // todo: fix entities, shouldn't be "special"
-        reportSyntaxError("no entity references allowed here")
-      case s: SpecialNode =>
-        if (s.toString.trim().length > 0) //non-empty text nodes not allowed
-          elemCount += 2
-      case m: Node =>
-        elemCount += 1
-        theNode = m
-    }
-    if (1 != elemCount) {
-      reportSyntaxError("document must contain exactly one element")
-      Console.println(children.toList)
-    }
+        children = content(TopScope) // DTD handled as side effect
+      } else {
+        val ts = new NodeBuffer()
+        content1(TopScope, ts) // DTD handled as side effect
+        ts &+ content(TopScope)
+        children = NodeSeq.fromSeq(ts)
+      }
+      //println("[MarkupParser::document] children now: "+children.toList)
+      var elemCount = 0
+      var theNode: Node = null
+      for (c <- children) c match {
+        case _: ProcInstr =>
+        case _: Comment =>
+        case _: EntityRef => // todo: fix entities, shouldn't be "special"
+          reportSyntaxError("no entity references allowed here")
+        case s: SpecialNode =>
+          if (s.toString.trim().length > 0) //non-empty text nodes not allowed
+            elemCount += 2
+        case m: Node =>
+          elemCount += 1
+          theNode = m
+      }
+      if (1 != elemCount) {
+        reportSyntaxError("document must contain exactly one element")
+        Console.println(children.toList)
+      }
 
-    doc.children = children
-    doc.docElem = theNode
-    doc
+      doc.children = children
+      doc.docElem = theNode
+      doc
+    } finally {
+      // Since they asked for the entire document, it's safe to assume the input has been consumed.
+      close()
+    }
   }
 
   /** append Unicode character to name buffer*/
@@ -283,6 +288,10 @@ trait MarkupParser extends MarkupParserCommon with TokenTests {
   def initialize: this.type = {
     nextch()
     this
+  }
+
+  def close() {
+    input.close()
   }
 
   protected def ch_returning_nextch: Char = { val res = ch; nextch(); res }
