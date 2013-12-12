@@ -10,7 +10,6 @@ package scala
 package xml
 
 import scala.collection.mutable
-import parsing.XhtmlEntities
 import scala.language.implicitConversions
 
 /**
@@ -31,7 +30,7 @@ object Utility extends AnyRef with parsing.TokenTests {
   private[xml] def sbToString(f: (StringBuilder) => Unit): String = {
     val sb = new StringBuilder
     f(sb)
-    sb.toString
+    sb.toString()
   }
   private[xml] def isAtomAndNotText(x: Node) = x.isAtom && !x.isInstanceOf[Text]
 
@@ -84,7 +83,7 @@ object Utility extends AnyRef with parsing.TokenTests {
   }
 
   /**
-   * Escapes the characters &lt; &gt; &amp; and &quot; from string.
+   * Escapes the characters &lt; &gt; &amp; &apos; and &quot; from string.
    */
   final def escape(text: String): String = sbToString(escape(text, _))
 
@@ -97,15 +96,13 @@ object Utility extends AnyRef with parsing.TokenTests {
       "lt" -> '<',
       "gt" -> '>',
       "amp" -> '&',
-      "quot" -> '"'
-    // enigmatic comment explaining why this isn't escaped --
-    // is valid xhtml but not html, and IE doesn't know it, says jweb
-    // "apos"  -> '\''
+      "quot" -> '"',
+      "apos"  -> '\''
     )
     val escMap = pairs map { case (s, c) => c -> ("&%s;" format s) }
-    val unescMap = pairs ++ Map("apos" -> '\'')
+    val unescMap = pairs
   }
-  import Escapes.{ escMap, unescMap }
+  import Escapes.unescMap
 
   /**
    * Appends escaped string to `s`.
@@ -123,6 +120,7 @@ object Utility extends AnyRef with parsing.TokenTests {
         case '>'  => s.append("&gt;")
         case '&'  => s.append("&amp;")
         case '"'  => s.append("&quot;")
+        case '\'' => s.append("&apos;")
         case '\n' => s.append('\n')
         case '\r' => s.append('\r')
         case '\t' => s.append('\t')
